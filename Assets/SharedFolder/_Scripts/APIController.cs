@@ -10,6 +10,7 @@ using System.Text;
 using Unity.Jobs;
 using UnityEngine;
 using UnityEngine.UI;
+using IQPlay.GameClient;
 
 public class APIController : MonoBehaviour
 {

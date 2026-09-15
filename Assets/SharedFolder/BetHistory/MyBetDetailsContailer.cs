@@ -3,6 +3,7 @@ using System.Reflection;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using IQPlay.GameClient;
 
 public class MyBetDetailsContailer : MonoBehaviour
 {

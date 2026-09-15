@@ -13,6 +13,7 @@ using Newtonsoft.Json;
 using Spine.Unity;
 using System.Xml.Linq;
 using UnityEditor;
+using IQPlay.GameClient;
 
 public class GameController : MonoBehaviour
 {

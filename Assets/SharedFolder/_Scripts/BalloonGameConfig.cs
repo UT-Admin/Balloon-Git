@@ -5,7 +5,10 @@ public static class BalloonGameConfig
     public static string ServerUrl   { get; private set; } = "ws://localhost:2567";
     public static string ApiUrl      { get; private set; } = "http://localhost:3000";
     public static string SessionCode { get; private set; } = "";
+    public static string Operator { get; private set; } = "";
     public static string Currency    { get; private set; } = "USD";
+
+    private static string _gameSlug = "game";
 
 #if UNITY_WEBGL && !UNITY_EDITOR
     [DllImport("__Internal")] private static extern string GetServerUrl();
@@ -13,10 +16,11 @@ public static class BalloonGameConfig
     [DllImport("__Internal")] private static extern string GetSessionCode();
 #endif
 
-    public static void Init()
+    public static void Init(string gameSlug)
     {
+        _gameSlug = gameSlug;
 #if UNITY_EDITOR
-        var code = UnityEditor.EditorPrefs.GetString("IQPlay_EditorSessionCode_Balloon", "");
+        var code = UnityEditor.EditorPrefs.GetString(EditorSessionCodeKey, "");
         if (!string.IsNullOrEmpty(code))
             SessionCode = code;
 #elif UNITY_WEBGL
@@ -35,10 +39,11 @@ public static class BalloonGameConfig
     }
 
 #if UNITY_EDITOR
+    public static string EditorSessionCodeKey => $"IQPlay_EditorSessionCode_{_gameSlug}";
     public static void SetEditorSessionCode(string code)
     {
         SessionCode = code;
-        UnityEditor.EditorPrefs.SetString("IQPlay_EditorSessionCode_Balloon", code);
+        UnityEditor.EditorPrefs.SetString(EditorSessionCodeKey, code);
     }
 #endif
 

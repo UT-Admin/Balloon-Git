@@ -2,11 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using IQPlay.GameClient;
 
 public class BetHistoryHandler : MonoBehaviour
 {
@@ -238,38 +236,6 @@ public class BetHistoryHandler : MonoBehaviour
     }
 }
 
-[Serializable]
-public class Betlist
-{
-    public string id;
-    public double bet_amount;
-    public double win_amount;
-    public string dateTime;
-    public string matchID;
-
-    public string GetDateAndTimeString()
-    {
-        DateTime.TryParse(dateTime, out DateTime parsedDateTime);
-        return parsedDateTime.ToString("yyyy-MM-dd HH:mm:ss"); ;
-
-    }
-
-    public DateTime GetDateAndTime()
-    {
-        DateTime data;
-        DateTime.TryParse(dateTime, out data);
-        return ConvertToLocalTime(dateTime);
-    }
-
-    public DateTime ConvertToLocalTime(string dateTimeString)
-    {
-        if (DateTime.TryParse(dateTimeString, out DateTime parsedDateTime))
-        {
-            return parsedDateTime.ToLocalTime();
-        }
-        else
-        {
-            return parsedDateTime;
-        }
-    }
-}
+// Betlist now comes from IQPlay.GameClient (see BaseColyseusManager.cs) — the
+// local copy that used to live here was a same-name-different-type shadowing
+// it, which is why the delegate assignment above didn't match.
