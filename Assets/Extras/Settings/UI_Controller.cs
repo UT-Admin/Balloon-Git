@@ -15,8 +15,6 @@ public class UI_Controller : MonoBehaviour
     private void Awake()
     {
         instance = this;
-        //Welcomepop.SetActive(true);
-        //LoadingPanel.SetActive(true);
     }
 
     #region Adding & Removing CurrentPages
@@ -35,7 +33,7 @@ public class UI_Controller : MonoBehaviour
             openedPages.Remove(handler);
 
     }
-  
+
     private void Update()
     {
         //if (Input.GetKeyDown(KeyCode.Escape) && openedPages.Count > 0 && openedPages.Count != 0)
@@ -47,18 +45,32 @@ public class UI_Controller : MonoBehaviour
     public void ExitWebGL()
     {
         /*APIController.CloseWindow();*/
-       // SettingsPanelHandler.instance.RedirectingPanel.SetActive(true);
+        // SettingsPanelHandler.instance.RedirectingPanel.SetActive(true);
+        //InvokeRepeating(nameof(ShowCloseWindow), 1f, 5f);
         GameController.instance.RedirectionPanel.SetActive(true);
         InvokeRepeating(nameof(ShowCloseWindow), 1f, 5f);
     }
     #endregion
 
+#if UNITY_WEBGL && !UNITY_EDITOR
+    [System.Runtime.InteropServices.DllImport("__Internal")] private static extern void NotifyGameExit();
+#else
+    private static void NotifyGameExit() => Debug.Log("[SettingsPanelHandler] NotifyGameExit (editor stub)");
+#endif
+
     void ShowCloseWindow()
     {
 #if UNITY_WEBGL
-        APIController.CloseWindow();
+        NotifyGameExit();
 #endif
     }
+
+    /*    void ShowCloseWindow()
+        {
+    #if UNITY_WEBGL
+            APIController.CloseWindow();
+    #endif
+        }*/
 
     #region Sound Properties
     public bool IsSoundOn()

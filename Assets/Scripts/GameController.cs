@@ -1094,6 +1094,97 @@ public class GameController : MonoBehaviour
         IsCreateMatchCalled = false;
         Invoke(nameof(TimeDelay), 1.5f);
     }
+    public void ClearAllBetsForFreshStart()
+    {
+        // Cancel any pending scheduled callbacks from the previous round
+        CancelInvoke(nameof(TimeDelay));
+        CancelInvoke(nameof(SetAnimDelay));
+
+        // Core game state flags
+        startGame = false;
+        onClick = false;
+        HeatBtnpress = false;
+        isPressed = false;
+        isFire = false;
+        take = false;
+        lost = false;
+        gameLost = false;
+        isNormal = false;
+        isBegin = false;
+        isPrediction = false;
+        IsCreateMatchCalled = false;
+        isCreateMatchSucceess = false;
+        makeLose = false;
+        buttonPress = false;
+        btnPressed = false;
+        _balanceUpdate = false;
+        isChecked = false;
+        netCheck = false;
+        pauseGame = false;
+
+        // Stop audio & reset spine animation
+        audioController.StopAudio(AudioEnum.Movement);
+        skeletonAnimation.maskInteraction = SpriteMaskInteraction.None;
+        skeletonAnimation.AnimationName = "Idle";
+        skeletonAnimation.loop = true;
+
+        // Reset multiplier / cash-out values
+        Multiplier = 0f;
+        TakeCash = 0f;
+        Mstring = "0.00";
+        timeSinceLastIncrement = 0f;
+        multiplierTxt.text = Multiplier.ToString("0.00");
+        takeCashTxt.text = TakeCash.ToString("F2");
+        takeCashWintxt.text = TakeCash.ToString("F2");
+        ballonCashTxt.text = TakeCash.ToString("F2") + "<size=3.5>" + currencyType + "</size>";
+        multiplierValue_Txt.gameObject.SetActive(false);
+
+        // Reset background/parallax positions
+        background.localPosition = initialBackgroundPosition;
+        bgSprite.position = initialBgPos;
+
+        // Reset core UI panels/buttons
+        winPanel.SetActive(false);
+        takeCashObj.SetActive(false);
+        takeCashbutton.interactable = false;
+        takeCashbutton.gameObject.SetActive(false);
+        HeatBtn.gameObject.SetActive(true);
+        HeatBtn.interactable = true;
+        menuButton.interactable = true;
+        BetArea_numPad.SetActive(true);
+        takeBetAmount = true;
+
+        // Reset AutoPlay fully
+        if (isAutoPlay)
+        {
+            Stop_AutoPlayBtn();
+        }
+        isAutoPlay = false;
+        autoPlayBtnPrss = false;
+        stopAutoPlay = false;
+        Reset_AutoPlayBtn();
+
+        // Restore bet/plus/minus button interactability + selection visuals
+        Button_Switch_ON();
+        ButtonSelect_Anim();
+
+        // Restore full opacity on bet text (in case it was dimmed mid-round)
+        Color betColor = betAmountTxt.color;
+        betColor.a = 1f;
+        betAmountTxt.color = betColor;
+        betFontTxt.color = new Color32(255, 255, 255, 200);
+        for (int i = 0; i < btnAmtTxt.Length; i++)
+        {
+            if (btnAmtTxt[i] != null)
+            {
+                Color c = btnAmtTxt[i].color;
+                c.a = 1f;
+                btnAmtTxt[i].color = c;
+            }
+        }
+
+        NetworkHandler.instance.StartIdleSession();
+    }
     public void BetResetForInsufficient()
     {
         isPressed = false;

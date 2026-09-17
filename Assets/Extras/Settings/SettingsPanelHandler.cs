@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using IQPlay.GameClient;
 
 public class SettingsPanelHandler : UIHandler
 {

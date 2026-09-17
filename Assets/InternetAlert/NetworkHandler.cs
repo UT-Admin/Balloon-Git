@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using IQPlay.GameClient;
 
 public class NetworkHandler : MonoBehaviour
 {
@@ -103,6 +104,19 @@ public class NetworkHandler : MonoBehaviour
             SessionPopup.SetActive(true);
         SetDelay();
     }
+
+    public void OnReconnectButtonClicked()
+    {
+        SessionPopup.SetActive(false);
+        StartIdleSession();
+
+        if (GameController.instance != null)
+            GameController.instance.ClearAllBetsForFreshStart();
+
+        BalloonColyseusManager.Instance.SoftReconnect();
+    }
+
+
     public void StartIdleSession(bool _check = true)
     {
         if (SessionPopup.activeSelf) { return; }
