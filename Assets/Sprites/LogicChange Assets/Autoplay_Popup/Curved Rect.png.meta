@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 9d881933bcf2d624380da91719e49fe0
+guid: e47f488e2d5eb504e84c9f7ec65e0af4
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 5415141898272081348
-    second: Autoplay_Btn_0
+      213: 7527666544649581857
+    second: Curved Rect_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -24,7 +24,7 @@ TextureImporter:
     heightScale: 0.25
     normalMapFilter: 0
     flipGreenChannel: 0
-  isReadable: 1
+  isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
@@ -113,23 +113,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Autoplay_Btn_0
+      name: Curved Rect_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 176
-        height: 176
+        width: 80
+        height: 80
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
-      border: {x: 55, y: 55, z: 55, w: 55}
+      border: {x: 20, y: 20, z: 20, w: 20}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 4c587d6add2762b40800000000000000
-      internalID: 5415141898272081348
+      spriteID: 1253e6dc6d4a77860800000000000000
+      internalID: 7527666544649581857
       vertices: []
       indices: 
       edges: []
@@ -138,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 55e55dd7e46d1f94cb29efceb8faa4bc
+    spriteID: 07553998f886a28499d6d1d66c5a51ec
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Autoplay_Btn_0: 5415141898272081348
+      Curved Rect_0: 7527666544649581857
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

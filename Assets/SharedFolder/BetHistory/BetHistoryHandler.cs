@@ -242,7 +242,6 @@ public class Betlist
     {
         DateTime.TryParse(dateTime, out DateTime parsedDateTime);
         return parsedDateTime.ToString("yyyy-MM-dd HH:mm:ss"); ;
-
     }
 
     public DateTime GetDateAndTime()

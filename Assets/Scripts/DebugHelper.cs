@@ -10,7 +10,7 @@ public static class DebugHelper
     /// <param name="message">The message to log.</param>
     public static void Log(string message)
     {
-        //Debug.Log(message);
+        Debug.Log(message);
     }
 
     /// <summary>

@@ -6,8 +6,8 @@ public class HowToPlayHandler : MonoBehaviour
 {
     [Header("Dynamic Size Related Components")]
     [SerializeField] private RectTransform PopupImg;
-    [SerializeField] private readonly Vector2 PortrailSize = new(1040, 1430);
-    [SerializeField] private readonly Vector2 LandscapeSize = new(1650, 1430);
+    [SerializeField] private Vector2 PortrailSize = new(1000, 1150);
+    [SerializeField] private Vector2 LandscapeSize = new(1050, 1050);
     private Vector2Int LastRes = Vector2Int.zero;
 
     [Header("TEXT COMPONENTS")]
@@ -22,6 +22,7 @@ public class HowToPlayHandler : MonoBehaviour
 
     private void Update()
     {
+        return;
         if (PopupImg != null && (Screen.width != LastRes.x || Screen.height != LastRes.y))
         {
             UpdatePopupSize();
