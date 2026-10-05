@@ -230,7 +230,7 @@ public class BetHistoryHandler : MonoBehaviour
 }
 
 [Serializable]
-public class Betlist
+/*public class Betlist
 {
     public string id;
     public double bet_amount;
@@ -242,6 +242,38 @@ public class Betlist
     {
         DateTime.TryParse(dateTime, out DateTime parsedDateTime);
         return parsedDateTime.ToString("yyyy-MM-dd HH:mm:ss"); ;
+    }
+
+    public DateTime GetDateAndTime()
+    {
+        DateTime data;
+        DateTime.TryParse(dateTime, out data);
+        return ConvertToLocalTime(dateTime);
+    }
+
+    public DateTime ConvertToLocalTime(string dateTimeString)
+    {
+        if (DateTime.TryParse(dateTimeString, out DateTime parsedDateTime))
+        {
+            return parsedDateTime.ToLocalTime();
+        }
+        else
+        {
+            return parsedDateTime;
+        }
+    }
+}*/
+public class Betlist
+{
+    public string id;
+    public double bet_amount;
+    public double win_amount;
+    public string dateTime;
+    public string matchID;
+
+    public string GetDateAndTimeString()
+    {
+        return ConvertToLocalTime(dateTime).ToString("yyyy-MM-dd HH:mm:ss");
     }
 
     public DateTime GetDateAndTime()

@@ -742,9 +742,17 @@ public class APIController : MonoBehaviour
                 GetUpdatedBalance();
                 return;
             }
-            BetHistoryHandler.Instance.UpdateBet(new Betlist
+            /*BetHistoryHandler.Instance.UpdateBet(new Betlist
             {
                 dateTime = DateTime.Now.ToString(),
+                id = betId,
+                bet_amount = spend_amount,
+                win_amount = win_amount_with_comission,
+                matchID = matchToken
+            });*/
+            BetHistoryHandler.Instance.UpdateBet(new Betlist
+            {
+                dateTime = DateTime.UtcNow.ToString(),
                 id = betId,
                 bet_amount = spend_amount,
                 win_amount = win_amount_with_comission,
@@ -974,9 +982,17 @@ public class APIController : MonoBehaviour
                  UpdateBalanceResponse(matchResponse.balance);
                  successAction?.Invoke(index, matchResponse);
                  DebugHelper.Log(JsonConvert.SerializeObject(matchResponse) + "CreateAndJoinMatch 2 => " + bet.BetId + " ... " + bet.MatchToken + "....Balance" + matchResponse.balance);
-                 BetHistoryHandler.Instance.AddBet(new Betlist
+                 /*BetHistoryHandler.Instance.AddBet(new Betlist
                  {
                      dateTime = DateTime.Now.ToString(),
+                     id = bet.BetId,
+                     bet_amount = amount,
+                     win_amount = 0,
+                     matchID = bet.MatchToken
+                 });*/
+                 BetHistoryHandler.Instance.AddBet(new Betlist
+                 {
+                     dateTime = DateTime.UtcNow.ToString(),
                      id = bet.BetId,
                      bet_amount = amount,
                      win_amount = 0,
