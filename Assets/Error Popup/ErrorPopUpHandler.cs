@@ -4,6 +4,7 @@ using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using IQPlay.GameClient;
 
 public class ErrorPopUpHandler : MonoBehaviour
 {
@@ -58,8 +59,8 @@ public class ErrorPopUpHandler : MonoBehaviour
 
                     break;
                 default:
-                    if (APIController.instance.authentication.operatorname.ToLower() != "demo")
-                        APIController.instance.GetUpdatedBalance();
+                    if (GameConfig.IsB2BMode)
+                        BalloonColyseusManager.Instance.RequestBalanceRefresh();
                     // You can add a default action here if needed
                     break;
             }

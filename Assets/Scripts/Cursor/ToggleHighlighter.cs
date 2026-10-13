@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections;
+using IQPlay.GameClient;
 public class ToggleHighlighter : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     private Image sourceImg;
@@ -21,7 +22,7 @@ public class ToggleHighlighter : MonoBehaviour, IPointerEnterHandler, IPointerEx
     }
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (APIController.instance.authentication.platform == "mobile" || APIController.instance.authentication.platform == "tablet")
+        if (SessionState.platform == "mobile" || SessionState.platform == "tablet")
             return;
 
         DebugHelper.Log("ToggleCheckDesktop_=>>>>_01 : ");
@@ -45,7 +46,7 @@ public class ToggleHighlighter : MonoBehaviour, IPointerEnterHandler, IPointerEx
     }
     public void OnPointerExit(PointerEventData eventData)
     {
-        if (APIController.instance.authentication.platform == "mobile" || APIController.instance.authentication.platform == "tablet")
+        if (SessionState.platform == "mobile" || SessionState.platform == "tablet")
             return;
         isHovered = false;
         ResetSprite();

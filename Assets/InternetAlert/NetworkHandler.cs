@@ -65,7 +65,7 @@ public class NetworkHandler : MonoBehaviour
             ServerPopPanel.SetActive(false);
         }
 
-        AudioListener.volume = (data == NetworkStatus.Active && !ConnectionPanel.gameObject.activeSelf && APIController.instance.isOnline && APIController.instance.isInFocus) ? 1 : 0;
+        AudioListener.volume = (data == NetworkStatus.Active && !ConnectionPanel.gameObject.activeSelf && SessionState.isOnline && SessionState.isInFocus) ? 1 : 0;
 
         if (BalloonGameConfig.IsB2BMode)
         {

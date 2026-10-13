@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
 using System.Text.RegularExpressions;
+using IQPlay.GameClient;
 
 public class KeyBoardHandler : MonoBehaviour
 {
@@ -64,7 +65,7 @@ public class KeyBoardHandler : MonoBehaviour
         {
             if (clampValue)
             {
-                result = Mathf.Clamp(result, APIController.instance.authentication.entryAmountDetails.minBetValue, APIController.instance.authentication.entryAmountDetails.maxBetValue);
+                result = Mathf.Clamp(result, SessionState.entryAmountDetails.minBetValue, SessionState.entryAmountDetails.maxBetValue);
                 displayText.text = result.ToString();
             }
             else
@@ -115,15 +116,15 @@ public class KeyBoardHandler : MonoBehaviour
         if (string.IsNullOrWhiteSpace(currentInput))
         {
             DebugHelper.Log("KeyPad Input WIthout Value");
-            controller.betAmount = APIController.instance.authentication.entryAmountDetails.minBetValue;
+            controller.betAmount = SessionState.entryAmountDetails.minBetValue;
             OnSubmitAction?.Invoke(float.Parse(controller.betAmount.ToString("0.00")));
         }
         else
         {
             if (displayText.text == ".")
             {
-                currentInput = APIController.instance.authentication.entryAmountDetails.minBetValue.ToString();
-                controller.betAmount = APIController.instance.authentication.entryAmountDetails.minBetValue;
+                currentInput = SessionState.entryAmountDetails.minBetValue.ToString();
+                controller.betAmount = SessionState.entryAmountDetails.minBetValue;
             }
             else
             {
@@ -132,17 +133,17 @@ public class KeyBoardHandler : MonoBehaviour
             float f;
             try
             {
-                f = Mathf.Clamp(float.Parse(currentInput), APIController.instance.authentication.entryAmountDetails.minBetValue, APIController.instance.authentication.entryAmountDetails.maxBetValue);
+                f = Mathf.Clamp(float.Parse(currentInput), SessionState.entryAmountDetails.minBetValue, SessionState.entryAmountDetails.maxBetValue);
                 OnSubmitAction?.Invoke(f);
 
-                if (f >= APIController.instance.authentication.entryAmountDetails.maxBetValue)
+                if (f >= SessionState.entryAmountDetails.maxBetValue)
                     GameController.instance.MaxBet_Object();
             }
             catch
             {
                 DebugHelper.Log("Cant Convert Too lengthy");
-                OnSubmitAction?.Invoke(APIController.instance.authentication.entryAmountDetails.maxBetValue);
-                controller.betAmount = APIController.instance.authentication.entryAmountDetails.maxBetValue;
+                OnSubmitAction?.Invoke(SessionState.entryAmountDetails.maxBetValue);
+                controller.betAmount = SessionState.entryAmountDetails.maxBetValue;
             }
             DebugHelper.Log("KeyPad Input WIth Some Values");
         }
@@ -159,7 +160,7 @@ public class KeyBoardHandler : MonoBehaviour
             BetInputController.Instance.IsEmptyInput = true;
 
             DebugHelper.Log("KeyPad Input WIthout Value");
-            controller.betAmount = APIController.instance.authentication.entryAmountDetails.minBetValue;
+            controller.betAmount = SessionState.entryAmountDetails.minBetValue;
 
             OnCancelAction?.Invoke(float.Parse(controller.betAmount.ToString("0.00")));
         }
@@ -167,8 +168,8 @@ public class KeyBoardHandler : MonoBehaviour
         {
             if (displayText.text == ".")
             {
-                currentInput = APIController.instance.authentication.entryAmountDetails.minBetValue.ToString();
-                controller.betAmount = APIController.instance.authentication.entryAmountDetails.minBetValue;
+                currentInput = SessionState.entryAmountDetails.minBetValue.ToString();
+                controller.betAmount = SessionState.entryAmountDetails.minBetValue;
             }
             else
             {
@@ -177,14 +178,14 @@ public class KeyBoardHandler : MonoBehaviour
             float f;
             try
             {
-                f = Mathf.Clamp(float.Parse(currentInput), APIController.instance.authentication.entryAmountDetails.minBetValue, APIController.instance.authentication.entryAmountDetails.maxBetValue);
+                f = Mathf.Clamp(float.Parse(currentInput), SessionState.entryAmountDetails.minBetValue, SessionState.entryAmountDetails.maxBetValue);
                 OnSubmitAction?.Invoke(f);
             }
             catch
             {
                 DebugHelper.Log("Cant Convert Too lengthy");
-                OnSubmitAction?.Invoke(APIController.instance.authentication.entryAmountDetails.maxBetValue);
-                controller.betAmount = APIController.instance.authentication.entryAmountDetails.maxBetValue;
+                OnSubmitAction?.Invoke(SessionState.entryAmountDetails.maxBetValue);
+                controller.betAmount = SessionState.entryAmountDetails.maxBetValue;
             }
 
             DebugHelper.Log("KeyPad Input WIth Some Values");

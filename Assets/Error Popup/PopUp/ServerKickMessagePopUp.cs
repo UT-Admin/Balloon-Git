@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using IQPlay.GameClient;
 
 public class ServerKickMessagePopUp : MonoBehaviour
 {
@@ -34,7 +35,7 @@ public class ServerKickMessagePopUp : MonoBehaviour
         if (Code == 402)
         {
             MsgTxt.text = Message;
-            APIController.instance.GetUpdatedBalance();
+            BalloonColyseusManager.Instance.RequestBalanceRefresh();
         }
     }
 

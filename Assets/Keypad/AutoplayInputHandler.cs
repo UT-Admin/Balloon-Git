@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Text.RegularExpressions;
+using IQPlay.GameClient;
 
 public class AutoplayInputHandler : MonoBehaviour
 {
@@ -33,12 +34,12 @@ public class AutoplayInputHandler : MonoBehaviour
         if (!isToggle)
         {
             minVal = 0;
-            maxVal = APIController.instance.authentication.entryAmountDetails.maxBetValue;
+            maxVal = SessionState.entryAmountDetails.maxBetValue;
         }
         //plusButton.interactable = false;
         if (currencyValue != null)
         {
-            currencyValue.text = APIController.instance.authentication.currency_type.ToUpper();
+            currencyValue.text = SessionState.entryAmountDetails.currency_type.ToUpper();
         }
         ResetToggles();
         isAudioStop = false;

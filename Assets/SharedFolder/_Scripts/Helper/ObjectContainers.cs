@@ -5,9 +5,6 @@ using System.Security.Cryptography;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using static WebApiManager;
-
-
 
 [System.Serializable]
 public class BackendAPI
@@ -34,9 +31,9 @@ public class BackendAPI
 [System.Serializable]
 public class ApiRequest
 {
-    public NetworkCallType callType;
+    /*public NetworkCallType callType;*/
     public string url;
-    public List<KeyValuePojo> param;
+    /*public List<KeyValuePojo> param;*/
     public Action<bool, string, string> action;
 }
 
@@ -54,7 +51,7 @@ public class BetRequest
 public class APIRequestList
 {
     public string url;
-    public ReqCallback callback;
+    /*public ReqCallback callback;*/
 }
 
 public class InitBetDetails
@@ -368,14 +365,6 @@ public class CreateMatchResponse
     public string Message;
     public int IsRandom;
     public double balance;
-}
-
-public enum NetworkStatus
-{
-    Active = 0,
-    NetworkIssue = 1,
-    ServerIssue = 2,
-    WaitingforResponse = 3
 }
 
 

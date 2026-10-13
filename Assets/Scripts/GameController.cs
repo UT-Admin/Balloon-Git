@@ -12,8 +12,9 @@ using System.Reflection;
 using Newtonsoft.Json;
 using Spine.Unity;
 using System.Xml.Linq;
-using UnityEditor;
 using IQPlay.GameClient;
+using System.Globalization;
+using System.Threading.Tasks;
 
 public class GameController : MonoBehaviour
 {
@@ -101,6 +102,7 @@ public class GameController : MonoBehaviour
     [SerializeField] bool isPressed;
     [SerializeField] bool HeatBtnpress;
     [SerializeField] bool buttonPress;
+    [SerializeField] bool cashOutInProgress;
     private bool isBegin;
     private bool pauseGame;
     private bool takeBetAmount;
@@ -209,7 +211,7 @@ public class GameController : MonoBehaviour
     [Header("-------------------------------------------------------------------------------------------------------------------------------------------------------")]
 
     [Header("API Controller")]
-    private string currencyType;
+    private string currencyType = "USD";
     private string playerID;
     private string playerName;
     private string operatorName;
@@ -246,12 +248,11 @@ public class GameController : MonoBehaviour
     private void Start()
     {
         // Subscribe to API events
-        APIController apiController = APIController.instance;
         SessionEvents.OnUserDetailsUpdate += InitPlayerDetails;
         SessionEvents.OnUserDetailsUpdate += UpdateDefaultValues;
         SessionEvents.OnSwitchingTab += OnSwitchTab;
         BalloonColyseusManager.Instance.OnPlayerStateReceived += OnPlayerStateReceived;
-        apiController.OnUserDeposit += InitUserDeposit;
+        /*apiController.OnUserDeposit += InitUserDeposit;*/
         takeBetAmount = true;
         Difference = 0;
         btnPressed = false;
@@ -347,7 +348,7 @@ public class GameController : MonoBehaviour
                         !pauseGame && betAmount >= SessionState.entryAmountDetails.minBetValue && rounds >= 0 && !NetworkHandler.instance.SessionPopup.activeSelf)
             {
                 Button_ONEnter();
-                OnClickDown();
+                OnClickDownAsync();
                 Button_SwitchingOFF();
             }
 
@@ -401,14 +402,13 @@ public class GameController : MonoBehaviour
     }
     private void InitPlayerDetails()
     {
-        DebugHelper.Log("UserDetails" + APIController.instance.userDetails.Id + " player ID " + playerID);
-        playerID = APIController.instance.userDetails.Id;
-        playerName = APIController.instance.userDetails.name;
+        DebugHelper.Log("UserDetails" + SessionState.Id + " player ID " + playerID);
+        playerID = SessionState.Id;
+        playerName = SessionState.name;
         UI_Controller.instance.settingsHandler.playerNameTxt.text = playerName;
-        operatorName = APIController.instance.userDetails.game_Id.Split("_")[0].ToString();
-        gameName = APIController.instance.userDetails.game_Id.Split("_")[1].ToString();
+        currencyType = BalloonColyseusManager.Instance.Currency;
         lobbyName = "Room : " + DateTime.UtcNow + UnityEngine.Random.Range(100, 999);
-        if (APIController.instance.authentication.operatorname == "demo")
+        if (GameConfig.IsB2BMode)
             demo = true;
         else
             demo = false;
@@ -438,15 +438,19 @@ public class GameController : MonoBehaviour
         minBetTxt.text = $"{SessionState.entryAmountDetails.minBetValue.ToString("N2", new System.Globalization.CultureInfo("en-IN"))} <size=25>{BalloonColyseusManager.Instance.Currency}</size>";
         maxBetTxt.text = $"{SessionState.entryAmountDetails.maxBetValue.ToString("N2", new System.Globalization.CultureInfo("en-IN"))} <size=25>{BalloonColyseusManager.Instance.Currency}</size>";
 
-        if (APIController.instance.authentication.operatorname == "demo")
-            maxWinOneBetTxt.text = $"{10000.ToString("N2", new System.Globalization.CultureInfo("en-IN"))} <size=25>{BalloonColyseusManager.Instance.Currency}</size>";
+        if (!GameConfig.IsB2BMode)
+            maxWinOneBetTxt.text = $"{10000:N2} {BalloonColyseusManager.Instance.Currency}";
         else
-            maxWinOneBetTxt.text = $"{1000000.ToString("N2", new System.Globalization.CultureInfo("en-IN"))} <size=25>{BalloonColyseusManager.Instance.Currency}</size>";
+        {
+            CultureInfo indianCulture = new CultureInfo("en-IN");
+            maxWinOneBetTxt.text =
+                $"{1000000.ToString("N2", indianCulture)} {BalloonColyseusManager.Instance.Currency}";
+        }
         //// Game Limits /////
 
         betHistoryCurrency.text = "Bet " + BalloonColyseusManager.Instance.Currency;
         DebugHelper.Log("Player Details Subscribed");
-        settingsPanelHandler.SetToggleValueFromAPI(APIController.instance.authentication.sound, APIController.instance.authentication.music);
+        settingsPanelHandler.SetToggleValueFromAPI(SessionState.sound, SessionState.music);
         settingsPanelHandler.settingsCloseBtn.gameObject.SetActive(false);
 
         if (settingsPanelHandler.SoundToggle.isOn)
@@ -648,7 +652,7 @@ public class GameController : MonoBehaviour
             timeSinceLastIncrement = 5.9f;
             isPressed = false;
         }
-        if (bonusCount && APIController.instance.isOnline && !NetworkHandler.instance.ConnectionPanel.activeSelf)
+        if (bonusCount && SessionState.isOnline && !NetworkHandler.instance.ConnectionPanel.activeSelf)
         {
             TakeCashOut();
         }
@@ -817,156 +821,6 @@ public class GameController : MonoBehaviour
         InternetCheck = true;
         TakingCash();
     }
-    void API_IntitalizeBetAmount()
-    {
-        BetInputController.Instance.BetAmtInput.textViewport.gameObject.SetActive(false);
-
-        if (BetInputController.Instance.BetPanel.gameObject.activeSelf)
-        {
-            BetInputController.Instance.CloseKeyPadPanel();
-            BetInputController.Instance.RestrictInput();
-        }
-
-        APIController.instance.CheckInternetandProcess((success) =>
-        {
-            DebugHelper.Log("CheckInternetandProcess Betbtn");
-            if (success)
-            {
-                DebugHelper.Log("CheckInternetandProcess Betbtn Success");
-                LocalInitializeBet();
-            }
-            else
-            {
-                DebugHelper.Log("CheckInternetandProcess Failed");
-                BetInputController.Instance.BetAmtInput.interactable = true;
-            }
-        });
-    }
-    void LocalInitializeBet()
-    {
-        DebugHelper.Log($"Entered LocalInitializeBet : {betAmount} , {TotalAmount}");
-        if (betAmount > (float)TotalAmount)
-        {
-            if (TotalAmount >= .1f)
-            {
-                PassTxt(betAmountTxt, betAmount.ToString("0.00") + " " + currencyType);
-            }
-            else
-            {
-                DebugHelper.Log("nmnm");
-            }
-
-            DebugHelper.Log("LocalInitializeBet 2 " + betAmount);
-            return;
-        }
-        isCreateMatchSucceess = false;
-
-        #region
-        int _index = UnityEngine.Random.Range(100, 999);
-        string message = "Bet Initiated";
-        TransactionMetaData val = new TransactionMetaData();
-        val.Amount = betAmount;
-        val.Info = message;
-        string m = betAmount.ToString("0.00");
-        betAmount = float.Parse(m);
-        DebugHelper.Log("LocalInitializeBet Controller.BetButtonclik ");
-        DebugHelper.Log("BetAMount ********* " + betAmount + " " + " Balance ******* " + TotalAmount);
-        List<string> _list = new List<string>();
-        _list.Add(APIController.instance.userDetails.Id);
-
-        GetPredictionProcess(async () =>
-        {
-            await UniTask.Delay(100);
-        });
-
-        if (isPrediction)
-        {
-            CreateMatchAPICall();
-        }
-        #endregion
-    }
-    private void CreateMatchAPICall()    //CREATEMATCHAPICALL CALLING METHOD
-    {
-        IsCreateMatchCalled = true;
-        DebugHelper.Log("CreateMatchAPICalled========>");
-        TransactionMetaData TransData = new();
-        TransData.Amount = betAmount;
-        TransData.Info = "InitBet";
-        int _index = UnityEngine.Random.Range(100, 999);
-        List<string> _list = new();
-        lobbyName = "Room : " + DateTime.UtcNow + UnityEngine.Random.Range(100, 999);
-        _list.Add(APIController.instance.userDetails.Id);
-        APIController.instance.CreateAndJoinMatch(_index, betAmount, TransData, false, lobbyName, APIController.instance.userDetails.Id,
-               false, gameName, operatorName, APIController.instance.userDetails.gameId, APIController.instance.userDetails.isBlockApiConnection, _list,
-               (initialized) =>
-               {
-
-               },
-     (betIndex, response) =>
-     {
-         DebugHelper.Log("Is match getting ===>>>> + Success");
-         BetIndex = betIndex;
-         MatchRes = response;
-         betID = response.Message;
-         startGame = true;
-         PressToBet();
-         SetupGameForNewRound();
-         HandleGameStart();
-         HeatBtn.interactable = false;
-         audioController.PlayAudio(AudioEnum.Movement, true);
-     },
-     (failed) =>
-     {
-         // Resetting all game Data......
-         DebugHelper.Log("Is match getting ===>>>> + Failed");
-         startGame = false;
-         onClick = false;
-         ResetBets();
-     });
-    }
-    void API_Winning()
-    {
-        string message = "Game Won";
-        TransactionMetaData val = new TransactionMetaData();
-        val.Amount = TakeCash;
-        val.Info = message;
-        DebugHelper.Log("isCreateMatchSucceess ====> success " + isCreateMatchSucceess);
-        WinningBetAPICall(GetTruncatedValue_WinAmout(TakeCash), GetTruncatedValue_WinAmout(TakeCash));
-    }
-    private void WinningBetAPICall(double WinAmount, double PotAmount)   //WINNINGBETAPI CALLING METHOD
-    {
-        TransactionMetaData _metaData = new TransactionMetaData();
-        _metaData.Amount = WinAmount;
-        _metaData.Info = "Game Won";
-        DebugHelper.Log("WinningsAmtBet ... : " + WinAmount);
-        APIController.instance.WinningsBetMultiplayerAPI(BetIndex, betID, WinAmount, betAmount, PotAmount, _metaData, (success) =>
-        {
-            if (success)
-            {
-                IsCreateMatchCalled = false;
-                take = true;
-                startGame = false;
-                onClick = false;
-                // TakeCash
-                takeCashbutton.interactable = false;
-
-                if (isAutoPlay && (stopSingleWin > 0) && (TakeCash > stopSingleWin))
-                {
-                    Stop_AutoPlayBtn();
-                }
-                isNormal = true;
-                audioController.PlayAudio(AudioEnum.winGame);
-                winPanel.SetActive(true);
-                menuButton.interactable = false;
-                Winning_Animations();
-                DelayFuction();
-            }
-            else
-            {
-                DebugHelper.Log("WinningBetAPIfailed========>");
-            }
-        }, APIController.instance.userDetails.Id, false, WinAmount == 0 ? false : true, gameName, operatorName, APIController.instance.userDetails.gameId, APIController.instance.userDetails.commission, MatchRes.MatchToken);
-    }
     async void DelayFuction()
     {
         if (isNormal)
@@ -979,6 +833,7 @@ public class GameController : MonoBehaviour
     void TimeDelay() // Clear UI
     {
         DebugHelper.Log("Check2");
+        cashOutInProgress = false;
         Multiplier = 0f;
         multiplierTxt.text = Multiplier.ToString("0.00");
         multiplierValue_Txt.gameObject.SetActive(false);
@@ -1202,10 +1057,38 @@ public class GameController : MonoBehaviour
         winTxt.text = $"{GetTruncatedValue_float(TakeCash):F2} {currencyType}";
         WinTxtObj();
     }
+    private void OnCashOutSuccess(float winAmount)
+    {
+        IsCreateMatchCalled = false;
+        take = true;
+        startGame = false;
+        onClick = false;
+        takeCashbutton.interactable = false;
+
+        if (isAutoPlay && (stopSingleWin > 0) && (TakeCash > stopSingleWin))
+            Stop_AutoPlayBtn();
+
+        isNormal = true;
+        // Show the win amount
+        winTxt.text = $"{winAmount:F2} {currencyType}";
+        takeCashWintxt.text = winAmount.ToString("F2");
+        ballonCashTxt.text = winAmount.ToString("F2") + "<size=3.5>" + currencyType + "</size>";
+        winPanel.SetActive(true);
+        menuButton.interactable = false;
+        audioController.PlayAudio(AudioEnum.winGame);
+        Winning_Animations();
+        DelayFuction();
+    }
     public void TakingCash()
     {
+        if (cashOutInProgress) return;   // TakeCashOut() can be called every frame
+        cashOutInProgress = true;
+
+        // Freeze the amount at the moment of cash-out
+        float winAmount = GetTruncatedValue_float(TakeCash);
         DebugHelper.Log($"TakeCashBetAmount 1 : _ {TakeCash}");
-        API_Winning();
+
+        OnCashOutSuccess(winAmount);
     }
     async void WinTxtObj()
     {
@@ -1265,65 +1148,90 @@ public class GameController : MonoBehaviour
 
     #region ::::::::::::::::::::::::::: Event Trigger Buttons :::::::::::::::::::::::::::
     bool InternetCheck;
-    public void OnClickDown()
+    private void PlaceBet()
+    {
+        // Close the keypad if it's open (this was the useful part of the old method)
+        BetInputController.Instance.BetAmtInput.textViewport.gameObject.SetActive(false);
+        if (BetInputController.Instance.BetPanel.gameObject.activeSelf)
+        {
+            BetInputController.Instance.CloseKeyPadPanel();
+            BetInputController.Instance.RestrictInput();
+        }
+
+        IsCreateMatchCalled = true;   // prevents sending the bet twice
+
+        // TODO: send the bet through Colyseus, e.g.
+        // BalloonColyseusManager.Instance.SendBet(betAmount);
+    }
+
+    // Call this when the server accepts the bet
+    private void OnBetAccepted()
+    {
+        startGame = true;
+        PressToBet();
+        SetupGameForNewRound();
+        HandleGameStart();
+        HeatBtn.interactable = false;
+        audioController.PlayAudio(AudioEnum.Movement, true);
+    }
+
+    // Call this when the server rejects the bet
+    private void OnBetRejected()
+    {
+        startGame = false;
+        onClick = false;
+        ResetBets();   // also resets IsCreateMatchCalled
+    }
+    public async Task OnClickDownAsync()
     {
         netCheck = true;
         NetworkHandler.instance.StartIdleSession(false);
 
-        APIController.instance.CheckInternetandProcess(async (success) =>
+        // Replaces APIController.CheckInternetandProcess
+        if (!SessionState.isOnline)
         {
-            if (!success)
-            {
-                InternetCheck = false;
-                DebugHelper.Log("CheckInternetandProcess failed: " + success);
-                return;
-            }
-            // Proceed if internet check is successful
-            InternetCheck = true;
-            onClick = true;
-
-            // Handle button press logic if conditions are met
-            if (!startGame && !pauseGame && ((float)TotalAmount < betAmount))
-            {
-                // Only show insufficient balance if it's not already showing
-                if (!insufficientBalance.activeSelf && !insufBal_Rumblebets.activeSelf)
-                {
-                    buttonPress = true;
-                    CheckInsufficientBalance();
-                }
-                return;
-            }
-            if (!numPad && !buttonPress && !lost && !isAutoPlay)
-            {
-                Button_SwitchingOFF();
-                HandleGameStart();
-            }
-            // Format amounts with two decimal places
-            TotalAmount = double.Parse(TotalAmount.ToString("0.00"));
-            betAmount = float.Parse(betAmount.ToString("0.00"));
-
-            // Game setup if conditions are met
-            if (!startGame && !buttonPress && !gameLost && !isBegin && !NetworkHandler.instance.ConnectionPanel.activeSelf)
-            {
-                if (!IsCreateMatchCalled)
-                {
-                    API_IntitalizeBetAmount();
-                }
-                else
-                {
-                    return;
-                }
-            }
-            while (!startGame)
-            {
-                await UniTask.Delay(100);
-            }
-        });
-
-        // Early return if no internet connection
-        if (!InternetCheck)
-        {
+            InternetCheck = false;
+            DebugHelper.Log("Offline: bet not started");
             return;
+        }
+
+        InternetCheck = true;
+        onClick = true;
+
+        // Insufficient balance
+        if (!startGame && !pauseGame && ((float)TotalAmount < betAmount))
+        {
+            // Only show insufficient balance if it's not already showing
+            if (!insufficientBalance.activeSelf && !insufBal_Rumblebets.activeSelf)
+            {
+                buttonPress = true;
+                CheckInsufficientBalance();
+            }
+            return;
+        }
+
+        if (!numPad && !buttonPress && !lost && !isAutoPlay)
+        {
+            Button_SwitchingOFF();
+            HandleGameStart();
+        }
+
+        // Format amounts with two decimal places
+        TotalAmount = double.Parse(TotalAmount.ToString("0.00"));
+        betAmount = float.Parse(betAmount.ToString("0.00"));
+
+        // Game setup if conditions are met
+        if (!startGame && !buttonPress && !gameLost && !isBegin && !NetworkHandler.instance.ConnectionPanel.activeSelf)
+        {
+            if (IsCreateMatchCalled)
+                return;
+
+            PlaceBet();
+        }
+
+        while (!startGame && onClick)   // exits if the bet is rejected
+        {
+            await UniTask.Delay(100);
         }
     }
     private void HandleGameStart()
@@ -1352,114 +1260,13 @@ public class GameController : MonoBehaviour
         makeLose = true;
         isBegin = true;
     }
-    public void RNG_APICall()   //RNG_APICALL CALLING METHOD
-    {
-        APIController.instance.GetRNG_API(betAmount, operatorName, APIController.instance.userDetails.gameId, (_IsWin, _MaxWin, _gameCount) =>
-        {
-            makeLose = _IsWin;
-            holdHeight = _MaxWin;
-            if (_IsWin)
-            {
-                DebugHelper.Log($"RNG Calculation:\n==============\n RNG Value Check : randomGamePlay \n MaxHeight : {_MaxWin}\n GameCount : {_gameCount}\n==============\n");
-            }
-            else
-            {
-                DebugHelper.Log($"RNG Calculation:\n==============\n RNG Value Check : LoseThisGame \n MaxHeight : {_MaxWin}\n GameCount : {_gameCount}\n==============\n");
-            }
-
-        }, gameName, 0);
-    }
 
     #region GET PREDICTION FROM API
-    public async void GetPredictionProcess(Action onSuccess)
-    {
-
-        if (isPrediction)
-            return;
-
-        DebugHelper.Log($"GetPredectedValueForWinREspone_#01 : {isPrediction}");
-        isPrediction = true;
-        bool predictionValue = false;
-
-        Dictionary<string, string> bodyDict = new Dictionary<string, string>
-        {
-            //{ "GameName", "Balloon"}
-            // Send Data to server
-        };
-        string payload = JsonConvert.SerializeObject(bodyDict);
-        string reqID = "";
-        /*reqID = APIController.instance.GetPredictionValue(payload, (init) =>
-        {
-            DebugHelper.Log("GetPredictionProcess Init Response Prediciton" + init.ToString());
-        },
-        (success) =>
-        {
-            predictionValue = true;
-
-            DebugHelper.Log("GetPredictionProcess success Response Prediciton" + success.ToString());
-            JObject data = JObject.Parse(success);
-            string heightString = data["prediction"].ToString();
-            float height = float.Parse(heightString);
-            height = (float)Math.Round(height, 2);
-            holdHeight = height;
-
-            // For Debugging RNG data
-            if (true) // Need to do
-            {
-                if (!demo)
-                    Debug.Log($"RNG Calculation:\n==============\n Selected numbers from server are {height}\n==============\n");
-                onSuccess?.Invoke();
-            }
-        },
-        (failure) =>
-        {
-            DebugHelper.Log("Set_API_Index failure Response Prediciton" + failure.ToString());
-        });*/
-        float time = Time.time;
-        bool waitingForresponseActive = false;
-        while (!predictionValue)
-        {
-            if (!waitingForresponseActive && Time.time - time > APIController.instance.waitingForResponseDelay)
-            {
-                waitingForresponseActive = true;
-                APIController.instance.OnInternetStatusChange?.Invoke(NetworkStatus.WaitingforResponse);
-            }
-            /*if (Time.time - time > APIController.instance.retryDelay)
-            {
-                if (BaseSocketController.instance.IsOnline())
-                {
-                    BaseSocketController.instance.RemoveRequestEvent(reqID);
-                    DebugHelper.Log("WinningBetResponce  Retry Called");
-                    GetPredictionProcess(onSuccess);
-                    return;
-                }
-            }*/
-            await UniTask.Delay(100);
-        }
-    }
     #endregion
     public void OnClickUp()
     {
-        APIController.instance.CheckInternetandProcess((success) =>
-        {
-            // Check internet connection status
-            if (!success)
-            {
-                InternetCheck = false;
-                DebugHelper.Log("CheckInternetandProcess failed: " + success);
-                return;
-            }
-            // Proceed if internet check is successful
-            InternetCheck = true;
-
-            // Reset button press state and update animations
-            isPressed = false;
-        });
-        // Early exit if no internet connection
-        if (!InternetCheck)
-        {
-            return;
-        }
+        // Reset button press state and update animations
+        isPressed = false;
     }
     public void Button_ONEnter()
     {
@@ -1496,67 +1303,56 @@ public class GameController : MonoBehaviour
 
     #region { ::::::::::::::::::::::::: Buttons ::::::::::::::::::::::::: }
     /// <summary>
-    public void HeatButton()
+    public async void HeatButton()
     {
         netCheck = true;
         NetworkHandler.instance.StartIdleSession(false);
 
-        APIController.instance.CheckInternetandProcess(async (success) =>
+        if (!SessionState.isOnline)
         {
-            if (!success)
-            {
-                InternetCheck = false;
-                DebugHelper.Log("CheckInternetandProcess failed: " + success);
-                return;
-            }
-            // Proceed if internet check is successful
-            InternetCheck = true;
-            onClick = true;
-            HeatBtnpress = true;
-            takeCashbutton.gameObject.SetActive(true);
-            HeatBtn.gameObject.SetActive(false);
-
-            if (startGame)
-            {
-                autoPlayicon.color = new Color32(255, 255, 255, 40);
-                autoPlayBtn.interactable = false;
-            }
-            // Handle button press logic if conditions are met
-            if (!startGame && !pauseGame && ((float)TotalAmount < betAmount))
-            {
-                buttonPress = true;
-                CheckInsufficientBalance();
-                return;
-            }
-            if (!numPad && !buttonPress && !lost && !isAutoPlay)
-            {
-                Button_SwitchingOFF();
-                HandleGameStart();
-            }
-            // Format amounts with two decimal places
-            TotalAmount = double.Parse(TotalAmount.ToString("0.00"));
-            betAmount = float.Parse(betAmount.ToString("0.00"));
-            // Game setup if conditions are met
-            if (!startGame && !buttonPress && !gameLost && !isBegin && !NetworkHandler.instance.ConnectionPanel.activeSelf)
-            {
-                if (!IsCreateMatchCalled)
-                {
-                    API_IntitalizeBetAmount();
-                }
-                else
-                {
-                    return;
-                }
-            }
-            while (!startGame)
-            {
-                await UniTask.Delay(100);
-            }
-        });
-        // Early return if no internet connection
-        if (!InternetCheck)
-        {
+            InternetCheck = false;
             return;
+        }
+
+        InternetCheck = true;
+        onClick = true;
+        HeatBtnpress = true;
+        takeCashbutton.gameObject.SetActive(true);
+        HeatBtn.gameObject.SetActive(false);
+
+        if (startGame)
+        {
+            autoPlayicon.color = new Color32(255, 255, 255, 40);
+            autoPlayBtn.interactable = false;
+        }
+
+        if (!startGame && !pauseGame && ((float)TotalAmount < betAmount))
+        {
+            buttonPress = true;
+            CheckInsufficientBalance();
+            return;
+        }
+
+        if (!numPad && !buttonPress && !lost && !isAutoPlay)
+        {
+            Button_SwitchingOFF();
+            HandleGameStart();
+        }
+
+        TotalAmount = double.Parse(TotalAmount.ToString("0.00"));
+        betAmount = float.Parse(betAmount.ToString("0.00"));
+
+        if (!startGame && !buttonPress && !gameLost && !isBegin && !NetworkHandler.instance.ConnectionPanel.activeSelf)
+        {
+            if (IsCreateMatchCalled)
+                return;
+
+            PlaceBet();
+        }
+
+        while (!startGame && onClick)   // exits if the bet is rejected
+        {
+            await UniTask.Delay(100);
         }
     }
     public void SettingBetValuesInAPI()
@@ -1849,7 +1645,7 @@ public class GameController : MonoBehaviour
             HeatBtn.gameObject.SetActive(true);
             takeCashbutton.gameObject.SetActive(false);
 
-            if (APIController.instance.authentication.operatorname == "demo")
+            if (GameConfig.IsB2BMode)
             {
                 insufficientBalance.SetActive(true);
                 insufBal_Rumblebets.SetActive(false);
@@ -2088,15 +1884,6 @@ public class GameController : MonoBehaviour
     public void ParallaxEffect_()
     {
         bgSprite.Translate(Vector2.down * speed * Time.deltaTime);
-    }
-    #endregion ::::::::::::::::::::::::: END :::::::::::::::::::::::::
-
-    #region { ::::::::::::::::::::::::: Testing_Amount ::::::::::::::::::::::::: }
-    [SerializeField] float testAmount = 10f;
-    [ContextMenu("ForceUpdateBalance")]
-    private void ForceUpdateBalance()
-    {
-        APIController.instance.UpdateBalanceResponse(testAmount);
     }
     #endregion ::::::::::::::::::::::::: END :::::::::::::::::::::::::
 }

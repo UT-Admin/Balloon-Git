@@ -11,6 +11,7 @@ using static System.Net.Mime.MediaTypeNames;
 //using DebugHelper = UnityEngine.DebugHelper;
 using Input = UnityEngine.Input;
 using System;
+using IQPlay.GameClient;
 
 public class BetInputController : MonoBehaviour
 {
@@ -29,7 +30,7 @@ public class BetInputController : MonoBehaviour
     {
         Instance = this;
         BetAmtInput.onValueChanged.AddListener(delegate { OnBetAmountEdit(); });
-        BetAmtInput.onEndEdit.AddListener(delegate { OnEndEditBetAmount(BetAmtInput.text.Length < 15 ? APIController.instance.authentication.entryAmountDetails.minBetValue : (float.Parse(BetAmtInput.text))); });
+        BetAmtInput.onEndEdit.AddListener(delegate { OnEndEditBetAmount(BetAmtInput.text.Length < 15 ? SessionState.entryAmountDetails.minBetValue : (float.Parse(BetAmtInput.text))); });
     }
     void Start()
     {
@@ -59,7 +60,7 @@ public class BetInputController : MonoBehaviour
     public void OpenKeyPadPanel()
     {
         controller.numPad = true;
-        DebugHelper.Log(" TOwer UserDevice ::" + APIController.instance.authentication.platform);
+        DebugHelper.Log(" TOwer UserDevice ::" + SessionState.platform);
         if (GameController.instance.numBool)
         {
             return;
@@ -175,7 +176,7 @@ public class BetInputController : MonoBehaviour
                      DebugHelper.Log("EDIT OVER : " + inputValue + "    " + controller.betAmount);
                      controller.betAmount = inputValue;
                      DebugHelper.Log("EDIT OVER 333 : " + inputValue + "    " + controller.betAmount);
-                     controller.betAmountTxt.text = inputValue.ToString("F2") + " <size=30>" + APIController.instance.userDetails.currency_type + "</size>";
+                     controller.betAmountTxt.text = inputValue.ToString("F2") + " <size=30>" + SessionState.entryAmountDetails.currency_type + "</size>";
 
                      CloseKeyPadPanel();
                      controller.betAmountTxt.gameObject.SetActive(true);
@@ -193,7 +194,7 @@ public class BetInputController : MonoBehaviour
                      //controller.betAmount = input;
                      //controller.betAmountTxt.text = GetTruncatedValue2(controller.betAmount).ToString("F2") + " <size=30>" + APIController.instance.userDetails.currency_type + "</size>";
                      controller.betAmount = input;
-                     controller.betAmountTxt.text = input.ToString("F2") + " <size=30>" + APIController.instance.userDetails.currency_type + "</size>";
+                     controller.betAmountTxt.text = input.ToString("F2") + " <size=30>" + SessionState.entryAmountDetails.currency_type + "</size>";
                      CloseKeyPadPanel();
                      controller.betAmountTxt.gameObject.SetActive(true);
                      DebugHelper.Log("Done " + controller.betAmount);
@@ -221,27 +222,27 @@ public class BetInputController : MonoBehaviour
             DebugHelper.Log("Closing +");
 
             IsEmptyInput = true;
-            controller.betAmount = APIController.instance.authentication.entryAmountDetails.minBetValue;
+            controller.betAmount = SessionState.entryAmountDetails.minBetValue;
         }
         else
         {
             float amount = GetTruncatedValue2(controller.betAmount);
             if (BetAmtInput.text == ".")
             {
-                amount = APIController.instance.authentication.entryAmountDetails.minBetValue;
+                amount = SessionState.entryAmountDetails.minBetValue;
             }
             else
             {
                 if (BetAmtInput.text.Length > 15)
                 {
-                    amount = APIController.instance.authentication.entryAmountDetails.maxBetValue;
+                    amount = SessionState.entryAmountDetails.maxBetValue;
                 }
                 else
                 {
                     amount = float.Parse(BetAmtInput.text);
                 }
             }
-            amount = Mathf.Clamp(amount, APIController.instance.authentication.entryAmountDetails.minBetValue, APIController.instance.authentication.entryAmountDetails.maxBetValue);
+            amount = Mathf.Clamp(amount, SessionState.entryAmountDetails.minBetValue, SessionState.entryAmountDetails.maxBetValue);
             IsEmptyInput = false;
 
             controller.betAmount = amount;
@@ -289,7 +290,7 @@ public class BetInputController : MonoBehaviour
 
         //string _s = controller.betAmount.ToString("0.00");
         //controller.betAmount = double.Parse(_s);
-        controller.betAmountTxt.text = (controller.betAmount).ToString("F2") + " <size=30>" + APIController.instance.userDetails.currency_type + "</size>";
+        controller.betAmountTxt.text = (controller.betAmount).ToString("F2") + " <size=30>" + SessionState.entryAmountDetails.currency_type + "</size>";
 
         DebugHelper.Log("EnableBetInput Called");
 

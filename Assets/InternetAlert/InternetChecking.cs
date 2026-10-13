@@ -1,5 +1,6 @@
 
 using UnityEngine;
+using IQPlay.GameClient;
 
 public class InternetChecking : MonoBehaviour
 {
@@ -9,7 +10,8 @@ public class InternetChecking : MonoBehaviour
 
     private void Start()
     {
-        APIController.instance.OnInternetStatusChange += GetNetworkStatus;
+        //APIController.instance.OnInternetStatusChange += GetNetworkStatus;
+        SessionEvents.OnInternetStatusChange += GetNetworkStatus;
     }
     private void Awake()
     {
@@ -39,6 +41,6 @@ public class InternetChecking : MonoBehaviour
                 ServerMaintenancePopup.SetActive(false);
             }
         }
-        AudioListener.volume = (data == NetworkStatus.Active && !InternetDisconnectedPopup.gameObject.activeSelf && APIController.instance.isOnline && APIController.instance.isInFocus) ? 1 : 0;
+        AudioListener.volume = (data == NetworkStatus.Active && !InternetDisconnectedPopup.gameObject.activeSelf & SessionState.isOnline && SessionState.isInFocus) ? 1 : 0;
     }
 }

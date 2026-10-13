@@ -15,9 +15,14 @@ public class ExitToMainMenu : MonoBehaviour
     {
 
     }
+#if UNITY_WEBGL && !UNITY_EDITOR
+    [System.Runtime.InteropServices.DllImport("__Internal")] private static extern void NotifyGameExit();
+#else
+    private static void NotifyGameExit() => Debug.Log("[ExitToMainMenu] NotifyGameExit (editor stub)");
+#endif
 
     public void Exit()
     {
-        APIController.CloseWindow();
+        NotifyGameExit();
     }
 }

@@ -132,42 +132,29 @@ public class SettingsPanelHandler : UIHandler
         else
             HideMe();
     }
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+    [System.Runtime.InteropServices.DllImport("__Internal")] private static extern void NotifyTopupRequest();
+#else
+    private static void NotifyTopupRequest() => Debug.Log("[Balloon_SettingsPanelHandler] NotifyTopupRequest (editor stub)");
+#endif
     public void ShowDeposit()
     {
+        if (!SessionState.isOnline) return;
+
+        UI_Controller.instance.PlayButtonSound();
 #if UNITY_WEBGL
-        APIController.instance.CheckInternetandProcess(async (success) =>
-        {
-            if (!success)
-                return;
-            else
-            {
-                if (!GameController.instance.demo)
-                    APIController.instance.OnClickDepositBtn();
-            }
-        });
+        if (GameConfig.IsB2BMode)
+            NotifyTopupRequest();
 #endif
+        HideMe();
     }
     private void UpdateMusic()
     {
-        /*APIController.instance.authentication.sound = SoundToggle.isOn;
-        APIController.instance.authentication.music = MusicToggle.isOn;
-        LocalStorage.Save("Lootrix_sound", APIController.instance.authentication.sound ? "true" : "false");
-        LocalStorage.Save("Lootrix_music", APIController.instance.authentication.music ? "true" : "false");*/
         SessionState.sound = SoundToggle.isOn;
         SessionState.music = MusicToggle.isOn;
         LocalStorage.Save("Lootrix_sound", SessionState.sound ? "true" : "false");
         LocalStorage.Save("Lootrix_music", SessionState.music ? "true" : "false");
-        APIController.instance.CheckInternetandProcess(async (success) =>
-        {
-            if (success)
-            {
-                LocalStorage.Save("Lootrix_sound", SessionState.sound ? "true" : "false");
-                LocalStorage.Save("Lootrix_music", SessionState.music ? "true" : "false");
-                /*APIController.instance.UpdateAudioSettings();*/
-            }
-            else
-                Invoke(nameof(UpdateMusic), 0.5f);
-        });
     }
     bool Updatetoggle = false;
     public void SetToggleValueFromAPI(bool sound, bool music)
@@ -200,8 +187,6 @@ public class SettingsPanelHandler : UIHandler
             music = musics == "true";
         }
         DebugHelper.Log("Updating SOundddd" + sounds + "Music" + music);
-        /*APIController.instance.authentication.sound = sound;
-        APIController.instance.authentication.music = music;*/
         SessionState.sound = sound;
         SessionState.music = music;
         SetToggleValueFromAPI(sound, music);
