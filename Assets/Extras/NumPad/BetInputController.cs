@@ -28,7 +28,7 @@ public class BetInputController : MonoBehaviour
     private void Awake()
     {
         Instance = this;
-        BetAmtInput.onValueChanged.AddListener(delegate { OnBetAmountEdit(); });
+        //BetAmtInput.onValueChanged.AddListener(delegate { OnBetAmountEdit(); });
         BetAmtInput.onEndEdit.AddListener(delegate { OnEndEditBetAmount(BetAmtInput.text.Length < 15 ? APIController.instance.authentication.entryAmountDetails.minBetValue : (float.Parse(BetAmtInput.text))); });
     }
     void Start()
@@ -49,7 +49,7 @@ public class BetInputController : MonoBehaviour
                 CloseKeyPadPanel();
                 if (!GameController.instance.numBool)
                 {
-                    BetAmtInput.textViewport.gameObject.SetActive(false);
+                    //BetAmtInput.textViewport.gameObject.SetActive(false);
                 }
             }
 
@@ -73,7 +73,7 @@ public class BetInputController : MonoBehaviour
     }
     public void OnBetAmountEdit()
     {
-        string pattern = @"^\d*(\.\d{0,2})?$";
+        string pattern = @"^\d+(\.\d{1,2})?\s[A-Z]{3}$";
         if (Regex.IsMatch(BetAmtInput.text, pattern))
         {
             BetAmtInput.text = BetAmtInput.text;
@@ -120,10 +120,10 @@ public class BetInputController : MonoBehaviour
                      DebugHelper.Log("EDIT OVER : " + inputValue + "    " + controller.betAmount);
                      controller.betAmount = inputValue;
                      DebugHelper.Log("EDIT OVER 333 : " + inputValue + "    " + controller.betAmount);
-                     controller.betAmountTxt.text = inputValue.ToString("F2") + " <size=30>" + APIController.instance.userDetails.currency_type + "</size>";
+                     BetAmtInput.text = inputValue.ToString("F2") + " <size=30>" + APIController.instance.userDetails.currency_type + "</size>";
 
                      CloseKeyPadPanel();
-                     controller.betAmountTxt.gameObject.SetActive(true);
+                     BetAmtInput.gameObject.SetActive(true);
                      DebugHelper.Log("Done " + controller.betAmount);
                      DebugHelper.Log($" CheckingTheNumPadAmt _5 : CloseKeyPadPanel");
                  },
@@ -131,7 +131,7 @@ public class BetInputController : MonoBehaviour
                  {
                      DebugHelper.Log("Live Bet Amount Changed: " + value);
                      controller.betAmount = value;
-                     controller.betAmountTxt.gameObject.SetActive(false);
+                     //BetAmtInput.gameObject.SetActive(false);
                  },
                  (input) =>
                  {
@@ -140,9 +140,9 @@ public class BetInputController : MonoBehaviour
                      //controller.betAmount = input;
                      //controller.betAmountTxt.text = GetTruncatedValue2(controller.betAmount).ToString("F2") + " <size=30>" + APIController.instance.userDetails.currency_type + "</size>";
                      controller.betAmount = input;
-                     controller.betAmountTxt.text = input.ToString("F2") + " <size=30>" + APIController.instance.userDetails.currency_type + "</size>";
+                     BetAmtInput.text = input.ToString("F2") + " <size=30>" + APIController.instance.userDetails.currency_type + "</size>";
                      CloseKeyPadPanel();
-                     controller.betAmountTxt.gameObject.SetActive(true);
+                     BetAmtInput.gameObject.SetActive(true);
                      DebugHelper.Log("Done " + controller.betAmount);
                      DebugHelper.Log($" CheckingTheNumPadAmt _6 : CloseKeyPadPanel");
                  });
@@ -163,7 +163,7 @@ public class BetInputController : MonoBehaviour
 
     public void RestrictInput()
     {
-        if (string.IsNullOrWhiteSpace(BetAmtInput.text))
+        /*if (string.IsNullOrWhiteSpace(BetAmtInput.text))
         {
             DebugHelper.Log("Closing +");
 
@@ -192,9 +192,19 @@ public class BetInputController : MonoBehaviour
             IsEmptyInput = false;
 
             controller.betAmount = amount;
-            /*            string _s = controller.betAmount.ToString("0.00");
-                        controller.betAmount = float.Parse(_s);*/
+        }*/
+
+        var d = APIController.instance.authentication.entryAmountDetails;
+
+        if (string.IsNullOrWhiteSpace(BetAmtInput.text))
+        {
+            IsEmptyInput = true;
+            controller.betAmount = d.minBetValue;
+            return;
         }
+
+        IsEmptyInput = false;
+        controller.betAmount = Mathf.Clamp((float)controller.betAmount, d.minBetValue, d.maxBetValue);
     }
 
     public void CloseKeyPadPanel()
@@ -226,17 +236,17 @@ public class BetInputController : MonoBehaviour
         {
             if (!GameController.instance.numBool)
             {
-                controller.betAmountTxt.gameObject.SetActive(true);
+                BetAmtInput.gameObject.SetActive(true);
             }
             else
             {
-                controller.betAmountTxt.gameObject.SetActive(false);
+                //BetAmtInput.gameObject.SetActive(false);
             }
         }
 
         //string _s = controller.betAmount.ToString("0.00");
         //controller.betAmount = double.Parse(_s);
-        controller.betAmountTxt.text = (controller.betAmount).ToString("F2") + " <size=30>" + APIController.instance.userDetails.currency_type + "</size>";
+        BetAmtInput.text = (controller.betAmount).ToString("F2") + " <size=30>" + APIController.instance.userDetails.currency_type + "</size>";
 
         DebugHelper.Log("EnableBetInput Called");
 
@@ -245,7 +255,7 @@ public class BetInputController : MonoBehaviour
     public void DisableBetInput()
     {
         DebugHelper.Log("DisableBetInput");
-        controller.betAmountTxt.gameObject.SetActive(false);
+        //BetAmtInput.gameObject.SetActive(false);
         BetAmtInput.text = controller.betAmount.ToString("0.00");
         //string _s = controller.betAmount.ToString("0.00");
         //controller.betAmount = double.Parse(_s);

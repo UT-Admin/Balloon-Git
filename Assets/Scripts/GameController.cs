@@ -34,6 +34,7 @@ public class GameController : MonoBehaviour
     [SerializeField] KeyBoardHandler keyBoard;
     [SerializeField] SettingsPanelHandler settingsPanelHandler;
     [SerializeField] SkeletonAnimation skeletonAnimation;
+    [SerializeField] BetInputController betInputController;
     [Header("-------------------------------------------------------------------------------------------------------------------------------------------------------")]
 
     [Header("Buttons")]
@@ -148,7 +149,7 @@ public class GameController : MonoBehaviour
     [SerializeField] TextMeshProUGUI takeCurrenyType;
     [SerializeField] TextMeshPro multiplierValue_Txt;
     // UI Bet Amount txt
-    public TextMeshProUGUI betAmountTxt;
+    //public TextMeshProUGUI betAmountTxt;
     public TextMeshProUGUI betFontTxt;
     [Header("-------------------------------------------------------------------------------------------------------------------------------------------------------")]
 
@@ -419,7 +420,7 @@ public class GameController : MonoBehaviour
 
         //////////////////////////////////////////////////////////////////////
         betAmount = APIController.instance.authentication.entryAmountDetails.minBetValue;
-        betAmountTxt.text = $"{betAmount:F2} <size=30>{currencyType}</size>";
+        betInputController.BetAmtInput.text = $"{betAmount:F2} <size=30>{currencyType}</size>";
         ButtonSelect_Anim();
         ////////////////////////////////////////////////////////////////////// 
 
@@ -451,7 +452,9 @@ public class GameController : MonoBehaviour
         currencyType = APIController.instance.userDetails.currency_type;
         PassTxt(totalAmountTxt, APIController.instance.userDetails.currency_type);
         PassTxt(takeCurrenyType, APIController.instance.userDetails.currency_type);
-        PassTxt(betAmountTxt, $"{betAmount:F2} <size={totalAmountTxt.fontSize - 10}>{APIController.instance.userDetails.currency_type}</size>");
+        //PassTxt(betInputController.BetAmtInput.textComponent, $"{betAmount:F2} <size={totalAmountTxt.fontSize - 10}>{APIController.instance.userDetails.currency_type}</size>");
+        betInputController.BetAmtInput.text = $"{betAmount:F2} <size={totalAmountTxt.fontSize - 10}>{APIController.instance.userDetails.currency_type}</size>";
+        DebugHelper.Log("CheckingTheLogsOF___ " + currencyType + " Value  " + betInputController.BetAmtInput.text);
         PassTxt(totalAmountTxt, $"{TotalAmount:F2} <size={totalAmountTxt.fontSize - 10}>{APIController.instance.userDetails.currency_type}</size>");
         DebugHelper.Log("Amount Details Subscribed");
     }
@@ -463,10 +466,10 @@ public class GameController : MonoBehaviour
         TotalAmount = double.Parse(m);
         PassTxt(totalAmountTxt, APIController.instance.authentication.currency_type);
         PassTxt(takeCurrenyType, APIController.instance.authentication.currency_type);
-        PassTxt(betAmountTxt, $"{betAmount:F2} <size={totalAmountTxt.fontSize - 10}>{APIController.instance.authentication.currency_type}</size>");
+        PassTxt(betInputController.BetAmtInput.textComponent, $"{betAmount:F2} <size={totalAmountTxt.fontSize - 10}>{APIController.instance.authentication.currency_type}</size>");
         PassTxt(totalAmountTxt, $"{TotalAmount:F2} <size={totalAmountTxt.fontSize - 10}>{APIController.instance.authentication.currency_type}</size>");
         currencyType = APIController.instance.authentication.currency_type;
-        betAmountTxt.text = $"{betAmount:F2} <size=30>{currencyType}</size>";
+        betInputController.BetAmtInput.text = $"{betAmount:F2} <size=30>{currencyType}</size>";
 
         for (int i = 0; i < 4; i++)
         {
@@ -527,6 +530,7 @@ public class GameController : MonoBehaviour
     private void PassTxt(TMP_Text _txt, string _passingValue)
     {
         _txt.text = _passingValue;
+        DebugHelper.Log("CheckingLogss___ " + _txt + "And__ " + _passingValue);
     }
     #endregion ::::::::::::::::::::::::: END :::::::::::::::::::::::::
 
@@ -554,9 +558,9 @@ public class GameController : MonoBehaviour
         }
         if (startGame && !take)
         {
-            Color color = betAmountTxt.color;
+            Color color = betInputController.BetAmtInput.textComponent.color;
             color.a = 0.5f;
-            betAmountTxt.color = color;
+            betInputController.BetAmtInput.textComponent.color = color;
             betFontTxt.color = new Color32(255, 255, 255, 100);
             for (int i = 0; i < btnAmtTxt.Length; i++)
             {
@@ -808,7 +812,7 @@ public class GameController : MonoBehaviour
     }
     void API_IntitalizeBetAmount()
     {
-        BetInputController.Instance.BetAmtInput.textViewport.gameObject.SetActive(false);
+        //BetInputController.Instance.BetAmtInput.textViewport.gameObject.SetActive(false);
 
         if (BetInputController.Instance.BetPanel.gameObject.activeSelf)
         {
@@ -838,7 +842,7 @@ public class GameController : MonoBehaviour
         {
             if (TotalAmount >= .1f)
             {
-                PassTxt(betAmountTxt, betAmount.ToString("0.00") + " " + APIController.instance.userDetails.currency_type);
+                PassTxt(betInputController.BetAmtInput.textComponent, betAmount.ToString("0.00") + " " + APIController.instance.userDetails.currency_type);
             }
             else
             {
@@ -1031,9 +1035,9 @@ public class GameController : MonoBehaviour
 
         if (!isAutoPlay)
         {
-            Color color = betAmountTxt.color;
+            Color color = betInputController.BetAmtInput.textComponent.color;
             color.a = 1f;
-            betAmountTxt.color = color;
+            betInputController.BetAmtInput.textComponent.color = color;
             betFontTxt.color = new Color32(255, 255, 255, 200);
 
             for (int i = 0; i < btnAmtTxt.Length; i++)
@@ -1156,7 +1160,7 @@ public class GameController : MonoBehaviour
             pressed_Buttons[i].interactable = false;
             selectedroundBtns[i].interactable = false;
         }
-        BetArea_numPad.SetActive(false);
+        //BetArea_numPad.SetActive(false);
         plusButtomImg.color = new Color32(255, 255, 255, 100);
         minusButtonImg.color = new Color32(255, 255, 255, 100);
     }
@@ -1226,7 +1230,7 @@ public class GameController : MonoBehaviour
     }
     private void HandleGameStart()
     {
-        BetInputController.Instance.BetAmtInput.textViewport.gameObject.SetActive(false);
+        //BetInputController.Instance.BetAmtInput.textViewport.gameObject.SetActive(false);
 
         if (BetInputController.Instance.BetPanel.gameObject.activeSelf)
         {
@@ -1473,7 +1477,7 @@ public class GameController : MonoBehaviour
 
         if (BetInputController.Instance.BetPanel.gameObject.activeSelf)
         {
-            BetInputController.Instance.BetAmtInput.textViewport.gameObject.SetActive(false);
+            //BetInputController.Instance.BetAmtInput.textViewport.gameObject.SetActive(false);
             BetInputController.Instance.BetPanel.gameObject.SetActive(false);
             KeyBoardHandler.instance.cancelButton.gameObject.SetActive(false);
             UpdateBetAmountDisplay();
@@ -1486,7 +1490,7 @@ public class GameController : MonoBehaviour
         {
             // Set the bet amount
             betAmount = betValue;
-            betAmountTxt.text = $"{betAmount:F2} <size=30>{currencyType}</size>";
+            betInputController.BetAmtInput.text = $"{betAmount:F2} <size=30>{currencyType}</size>";
             BetAmountTxt_Scaling();
             // Set buttons' active state based on bet amount
             SetBetButtonsActiveState(betValue);
@@ -1544,8 +1548,8 @@ public class GameController : MonoBehaviour
     }
     private void UpdateBetAmountDisplay()  // SelectBetButton
     {
-        betAmountTxt.text = betAmount.ToString("0.00" + " <size=30>" + currencyType + "</size>");
-        betAmountTxt.gameObject.SetActive(true);
+        betInputController.BetAmtInput.text = betAmount.ToString("0.00" + " <size=30>" + currencyType + "</size>");
+        betInputController.BetAmtInput.gameObject.SetActive(true);
     }
     private void EnableButtons()  // SelectBetButton
     {
@@ -1573,7 +1577,7 @@ public class GameController : MonoBehaviour
         {
             BetInputController.Instance.CloseKeyPadPanel();
             BetInputController.Instance.RestrictInput();
-            BetInputController.Instance.BetAmtInput.textViewport.gameObject.SetActive(false);
+            //BetInputController.Instance.BetAmtInput.textViewport.gameObject.SetActive(false);
             return;
         }
         if (keyBoard.gameObject.activeSelf)
@@ -1584,7 +1588,7 @@ public class GameController : MonoBehaviour
             if (betAmount < APIController.instance.authentication.entryAmountDetails.maxBetValue)
             {
                 betAmount += APIController.instance.authentication.entryAmountDetails.incrementValue;
-                betAmountTxt.text = betAmount.ToString("0.00" + " <size=30>" + currencyType + "</size>");
+                betInputController.BetAmtInput.text = betAmount.ToString("0.00" + " <size=30>" + currencyType + "</size>");
                 BetAmountTxt_Scaling();
                 minusButton.interactable = true;
                 minusButtonImg.color = new Color32(255, 255, 255, 255);
@@ -1594,7 +1598,7 @@ public class GameController : MonoBehaviour
             {
                 betAmount = APIController.instance.authentication.entryAmountDetails.maxBetValue;
                 plusButton.interactable = false;
-                betAmountTxt.text = betAmount.ToString("0.00" + " <size=30>" + currencyType + "</size>");
+                betInputController.BetAmtInput.text = betAmount.ToString("0.00" + " <size=30>" + currencyType + "</size>");
                 BetAmountTxt_Scaling();
                 plusButtomImg.color = new Color32(255, 255, 255, 100);
                 MaxBet_Object();
@@ -1608,7 +1612,7 @@ public class GameController : MonoBehaviour
         {
             BetInputController.Instance.CloseKeyPadPanel();
             BetInputController.Instance.RestrictInput();
-            BetInputController.Instance.BetAmtInput.textViewport.gameObject.SetActive(false);
+            //BetInputController.Instance.BetAmtInput.textViewport.gameObject.SetActive(false);
             return;
         }
         if (keyBoard.gameObject.activeSelf)
@@ -1619,14 +1623,14 @@ public class GameController : MonoBehaviour
             if (betAmount > APIController.instance.authentication.entryAmountDetails.minBetValue)
             {
                 betAmount -= APIController.instance.authentication.entryAmountDetails.decrementValue;
-                betAmountTxt.text = betAmount.ToString("0.00" + " <size=30>" + currencyType + "</size>");
+                betInputController.BetAmtInput.textComponent.text = betAmount.ToString("0.00" + " <size=30>" + currencyType + "</size>");
                 BetAmountTxt_Scaling();
                 plusButtomImg.color = new Color32(255, 255, 255, 255);
             }
             if (betAmount <= APIController.instance.authentication.entryAmountDetails.minBetValue)
             {
                 betAmount = APIController.instance.authentication.entryAmountDetails.minBetValue;
-                betAmountTxt.text = betAmount.ToString("0.00" + " <size=30>" + currencyType + "</size>");
+                betInputController.BetAmtInput.textComponent.text = betAmount.ToString("0.00" + " <size=30>" + currencyType + "</size>");
                 BetAmountTxt_Scaling();
                 minusButton.interactable = false;
                 minusButtonImg.color = new Color32(255, 255, 255, 100);
@@ -1637,9 +1641,9 @@ public class GameController : MonoBehaviour
     {
         // Create and configure a DoTween sequence for scaling animation
         DOTween.Sequence()
-            .Append(betAmountTxt.transform.DOScale(new Vector3(0.95f, 0.95f, 0.95f), 0.2f).SetEase(Ease.InSine))
+            .Append(betInputController.BetAmtInput.transform.DOScale(new Vector3(0.95f, 0.95f, 0.95f), 0.2f).SetEase(Ease.InSine))
             .AppendInterval(0.02f)
-            .Append(betAmountTxt.transform.DOScale(Vector3.one, 0.2f).SetEase(Ease.InOutSine));
+            .Append(betInputController.BetAmtInput.transform.DOScale(Vector3.one, 0.2f).SetEase(Ease.InOutSine));
     }
     void Button_Switch_ON()
     {
@@ -1679,14 +1683,14 @@ public class GameController : MonoBehaviour
     }
     void BetAmountUpdates()
     {
-        if (onClick)
+        /*if (onClick)
         {
             numPadButton.gameObject.SetActive(false);
         }
         else
         {
             numPadButton.gameObject.SetActive(true);
-        }
+        }*/
 
         if ((betAmount <= APIController.instance.authentication.entryAmountDetails.incrementValue) && !isAutoPlay)
         {
@@ -1806,7 +1810,7 @@ public class GameController : MonoBehaviour
         {
             BetInputController.Instance.CloseKeyPadPanel();
             BetInputController.Instance.RestrictInput();
-            BetInputController.Instance.BetAmtInput.textViewport.gameObject.SetActive(false);
+            //BetInputController.Instance.BetAmtInput.textViewport.gameObject.SetActive(false);
             return;
         }
 
@@ -1855,9 +1859,9 @@ public class GameController : MonoBehaviour
         {
             HeatBtn.interactable = true;
             totalCash = 0f;
-            Color color = betAmountTxt.color;
+            Color color = betInputController.BetAmtInput.textComponent.color;
             color.a = 1f;
-            betAmountTxt.color = color;
+            betInputController.BetAmtInput.textComponent.color = color;
             betFontTxt.color = new Color32(255, 255, 255, 200);
 
             for (int i = 0; i < btnAmtTxt.Length; i++)

@@ -13,7 +13,7 @@ public class KeyPadManager : MonoBehaviour
     public float maxBetValue;
     private float _IncrementValue = 5;
     //public string convertBetString;
-    private string pattern = @"^\d*(\.\d{0,2})?$";
+    private string pattern = @"^\d+(\.\d{1,2})?\s[A-Z]{3}$";
 
     private void Awake()
     {

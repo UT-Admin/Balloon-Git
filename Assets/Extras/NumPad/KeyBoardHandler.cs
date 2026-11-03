@@ -86,7 +86,7 @@ public class KeyBoardHandler : MonoBehaviour
         }
         currentInput = displayText.text;
         decimalButton.interactable = !currentInput.Contains(".");
-        controller.betAmountTxt.gameObject.SetActive(false);
+        //BetInputController.Instance.BetAmtInput.gameObject.SetActive(false);
         if (!GameController.instance.numBool)
         {
             BetInputController.Instance.BetAmtInput.textViewport.gameObject.SetActive(true);
@@ -153,7 +153,7 @@ public class KeyBoardHandler : MonoBehaviour
             DebugHelper.Log("KeyPad Input WIth Some Values");
         }
         DebugHelper.Log("OnSubmitInput Called");
-        BetInputController.Instance.BetAmtInput.textViewport.gameObject.SetActive(false);
+        //BetInputController.Instance.BetAmtInput.textViewport.gameObject.SetActive(false);
     }
     public void OnCancelInput()
     {
@@ -197,7 +197,7 @@ public class KeyBoardHandler : MonoBehaviour
         }
         DebugHelper.Log("OnCancelInput Called");
         BetInputController.Instance.CloseKeyPadPanel();
-        BetInputController.Instance.BetAmtInput.textViewport.gameObject.SetActive(false);
+        //BetInputController.Instance.BetAmtInput.textViewport.gameObject.SetActive(false);
     }
     public void ShowKeyBoard(double currentValue, Action<float> _onSubmitAction, Action<float> _onValueChanged, Action<float> _onCancelAction)
     {
