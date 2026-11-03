@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Text.RegularExpressions;
+using System.Globalization;
 
 public class AutoplayInputHandler : MonoBehaviour
 {
@@ -64,7 +65,7 @@ public class AutoplayInputHandler : MonoBehaviour
         if (plusButton != null) plusButton.onClick.AddListener(PlusButtonClick);
         if (minusButton != null) minusButton.onClick.AddListener(MinusButtonClick);
         if (toggle != null) toggle.onValueChanged.AddListener(ToggleValueChanged);
-        if (inputField != null) inputField.onValueChanged.AddListener(OnValueChanged);
+        //if (inputField != null) inputField.onValueChanged.AddListener(OnValueChanged);
         if (inputField != null) inputField.onEndEdit.AddListener(OnInputValueEndedit);
     }
 
@@ -73,8 +74,8 @@ public class AutoplayInputHandler : MonoBehaviour
         if (plusButton != null) plusButton.onClick.RemoveListener(PlusButtonClick);
         if (minusButton != null) minusButton.onClick.RemoveListener(MinusButtonClick);
         if (toggle != null) toggle.onValueChanged.RemoveListener(ToggleValueChanged);
-        if (inputField != null) inputField.onValueChanged.RemoveListener(OnValueChanged);
-        if (inputField != null) inputField.onEndEdit.RemoveListener(OnInputValueEndedit);
+        //if (inputField != null) inputField.onValueChanged.RemoveListener(OnValueChanged);
+        //if (inputField != null) inputField.onEndEdit.RemoveListener(OnInputValueEndedit);
     }
 
     public void PlusButtonClick()
@@ -84,8 +85,6 @@ public class AutoplayInputHandler : MonoBehaviour
         InputValue += incrementValue;
         DebugHelper.Log(InputValue + " Plus button check1");
         InputValue = Mathf.Clamp(InputValue, minVal, maxVal);
-        /*minusButton.interactable = toggle.isOn && InputValue > minVal;
-        plusButton.interactable = toggle.isOn && InputValue < maxVal;*/
 
         GameController.instance.ResetBtnON();
         Plus_Minus_Func();
@@ -99,8 +98,6 @@ public class AutoplayInputHandler : MonoBehaviour
         InputValue -= incrementValue;
         DebugHelper.Log(InputValue + " Minus button check1");
         InputValue = Mathf.Clamp(InputValue, minVal, maxVal);
-        /*minusButton.interactable = toggle.isOn && InputValue > minVal;
-        plusButton.interactable = toggle.isOn && InputValue < maxVal;*/
 
         GameController.instance.ResetBtnON();
         Plus_Minus_Func();
@@ -145,51 +142,18 @@ public class AutoplayInputHandler : MonoBehaviour
         // UpdateTextField();
     }
 
-    /*public void OnInputValueEndedit(string value)
-    {
-        if (string.IsNullOrEmpty(value))
-        {
-            InputValue = minVal;
-        }
-        else
-        {
-            InputValue = float.Parse(value);
-        }
-        DebugHelper.Log(InputValue + " OnInputValueEndedit");
-
-        InputValue = Mathf.Clamp(InputValue, minVal, maxVal);
-        DebugHelper.Log(InputValue + minVal + " OnInputValueEndedit1");
-
-        inputField.textComponent.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
-        inputField.transform.GetChild(0).GetChild(0).GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
-
-        Plus_Minus_Func();
-        UpdateTextField();
-    }*/
     public void OnInputValueEndedit(string value)
     {
         if (string.IsNullOrEmpty(value))
         {
             InputValue = minVal;
+
         }
         else
         {
             // Remove any non-numeric characters except decimal point and minus sign
-            string cleanedValue = new string(value.Where(c => char.IsDigit(c) || c == '.' || c == '-').ToArray());
-
-            if (string.IsNullOrEmpty(cleanedValue))
-            {
-                InputValue = minVal;
-            }
-            else if (float.TryParse(cleanedValue, System.Globalization.NumberStyles.Float,
-                                    System.Globalization.CultureInfo.InvariantCulture, out float result))
-            {
-                InputValue = result;
-            }
-            else
-            {
-                InputValue = minVal;
-            }
+            float cleanedValue = ExtractBetValue(value);
+            InputValue = cleanedValue;
         }
 
         DebugHelper.Log(InputValue + " OnInputValueEndedit");
@@ -203,7 +167,23 @@ public class AutoplayInputHandler : MonoBehaviour
         Plus_Minus_Func();
         UpdateTextField();
     }
+    public float ExtractBetValue(string input)
+    {
+        input = Regex.Replace(input, @"<[^>]*>", "");
 
+        string pattern = @"-?\d*\.?\d+";
+
+        Match match = Regex.Match(input, pattern);
+
+        if (match.Success &&
+            float.TryParse(match.Value, NumberStyles.Any,
+            CultureInfo.InvariantCulture, out float result))
+        {
+            return result;
+        }
+
+        return minVal;
+    }
     void UpdateTextField()
     {
         if (isTargetMult)
@@ -220,11 +200,9 @@ public class AutoplayInputHandler : MonoBehaviour
             {
                 DebugHelper.Log(TruncateToTwoDecimalPlaces(InputValue) + " %$#@OnInputValueEndedit");
                 inputField.text = " <size=30>" + "</size>" + TruncateToTwoDecimalPlaces(InputValue).ToString("F2");
-                //inputField.text = InputValue.ToString("F2");
             }
         }
     }
-
     public void ResetToggles()
     {
         if (!isToggle)
@@ -244,14 +222,11 @@ public class AutoplayInputHandler : MonoBehaviour
 
         Plus_Minus_Func();
     }
-
-
     private float TruncateToTwoDecimalPlaces(float value)
     {
 
         return (float)Math.Floor((decimal)(value * 100)) / 100;
     }
-
     void Plus_Minus_Func()
     {
         if (!isToggle)
