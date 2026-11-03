@@ -19,6 +19,7 @@ public class KeyBoardHandler : MonoBehaviour
     public static KeyBoardHandler instance;
     public RectTransform BetInputTextRect;
     [SerializeField] GameController controller;
+    float previousValue;
     private void Awake()
     {
         instance = this;
@@ -120,9 +121,13 @@ public class KeyBoardHandler : MonoBehaviour
         currentInput = displayText.text;
         if (string.IsNullOrWhiteSpace(currentInput))
         {
-            DebugHelper.Log("KeyPad Input WIthout Value");
+            /*DebugHelper.Log("KeyPad Input WIthout Value");
             controller.betAmount = APIController.instance.authentication.entryAmountDetails.minBetValue;
-            OnSubmitAction?.Invoke(float.Parse(controller.betAmount.ToString("0.00")));
+            OnSubmitAction?.Invoke(float.Parse(controller.betAmount.ToString("0.00")));*/
+
+            var d = APIController.instance.authentication.entryAmountDetails;
+            controller.betAmount = Mathf.Clamp(previousValue, d.minBetValue, d.maxBetValue);
+            OnSubmitAction?.Invoke(controller.betAmount);
         }
         else
         {
@@ -201,6 +206,8 @@ public class KeyBoardHandler : MonoBehaviour
     }
     public void ShowKeyBoard(double currentValue, Action<float> _onSubmitAction, Action<float> _onValueChanged, Action<float> _onCancelAction)
     {
+        previousValue = (float)currentValue;   // remember the value before editing
+
         BetInputController.Instance.BetAmtInput.textComponent.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
         BetInputController.Instance.BetAmtInput.transform.GetChild(0).GetChild(0).GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
         currentInput = string.Empty;
