@@ -72,6 +72,7 @@ public class NetworkHandler : MonoBehaviour
         if (!ConnectionPanel.activeSelf)
         {
             ServerPopPanel.SetActive(true);
+            NumericKeyboard.CloseIfOpen();
         }
     }
     public void ShowWaitingForResponse()
@@ -91,7 +92,11 @@ public class NetworkHandler : MonoBehaviour
             yield return new WaitForSeconds(1f);
         }
         if (!GameController.instance.startGame && !ConnectionPanel.activeSelf && !ServerPopPanel.activeInHierarchy)
+        {
             SessionPopup.SetActive(true);
+            NumericKeyboard.CloseIfOpen();
+        }
+
         SetDelay();
     }
     public void StartIdleSession(bool _check = true)

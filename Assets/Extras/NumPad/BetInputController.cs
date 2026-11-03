@@ -89,60 +89,6 @@ public class BetInputController : MonoBehaviour
         DebugHelper.Log("OnEndEditBetAmount");
         _KeyBoardHandler.OnSubmitInput();
 
-        /*if (GameController.instance.numBool)
-        {
-            if (!string.IsNullOrWhiteSpace(BetAmtInput.text))
-            {
-                if (BetAmtInput.text == ".")
-                {
-                    amount = APIController.instance.authentication.entryAmountDetails.minBetValue;
-                    DebugHelper.Log($" CheckingTheNumPadAmt _1 : {amount}");
-
-                }
-                try
-                {
-                    amount = Mathf.Clamp((float)amount, APIController.instance.authentication.entryAmountDetails.minBetValue, APIController.instance.authentication.entryAmountDetails.maxBetValue);
-                    DebugHelper.Log($" CheckingTheNumPadAmt _2 : {amount}");
-                }
-                catch
-                {
-                    DebugHelper.Log("Cant convert Too Lengthy OnEndEditBetAmount");
-                }
-            }
-            else
-            {
-                if (GameController.instance.numBool)
-                {
-                    amount = APIController.instance.authentication.entryAmountDetails.minBetValue;
-                    DebugHelper.Log($" CheckingTheNumPadAmt _3 : {amount}");
-                }
-                DebugHelper.Log("eMPTY iNPUT eNDeDIT");
-                IsEmptyInput = true;
-
-            }
-        }
-        if (GameController.instance.numBool)
-        {
-            controller.betAmount = amount;
-            string _s = controller.betAmount.ToString("0.00");
-            controller.betAmount = float.Parse(_s);
-            DebugHelper.Log($" CheckingTheNumPadAmt _4 : {amount}");
-            EnableBetInput();
-            DebugHelper.Log($" CheckingTheNumPadAmt _5 : {amount}");
-            BetAmtInput.interactable = false;
-            BetAmtInput.interactable = true;
-            BetAmtInput.textComponent.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
-            BetAmtInput.transform.GetChild(0).GetChild(0).GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
-
-            BetInputController.Instance.BetAmtInput.textViewport.gameObject.SetActive(false);
-
-            if (GameController.instance.numBool)
-            {
-                controller.betAmountTxt.gameObject.SetActive(true);
-
-            }
-        }*/
-
         StartCoroutine(ResetInputInteractableNextFrame());
     }
     private IEnumerator ResetInputInteractableNextFrame()
@@ -165,7 +111,6 @@ public class BetInputController : MonoBehaviour
             else
             {
                 DebugHelper.Log("OnEditInput ELse");
-
                 controller.numPad = true;
                 OpenKeyPadPanel();
                 _KeyBoardHandler.gameObject.SetActive(true);
@@ -184,6 +129,8 @@ public class BetInputController : MonoBehaviour
                  },
                  (value) =>
                  {
+                     DebugHelper.Log("Live Bet Amount Changed: " + value);
+                     controller.betAmount = value;
                      controller.betAmountTxt.gameObject.SetActive(false);
                  },
                  (input) =>

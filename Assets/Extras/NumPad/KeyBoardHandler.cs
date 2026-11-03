@@ -71,6 +71,12 @@ public class KeyBoardHandler : MonoBehaviour
             {
                 displayText.text = currentInput;
                 controller.betAmount = float.Parse(currentInput);
+
+                // Update bet amount immediately
+                controller.betAmount = result;
+
+                // IMPORTANT: Invoke OnValueChanged whenever input changes
+                OnValurChangedAction?.Invoke(result);
             }
         }
         else

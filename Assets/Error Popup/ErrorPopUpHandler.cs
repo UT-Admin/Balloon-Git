@@ -25,9 +25,11 @@ public class ErrorPopUpHandler : MonoBehaviour
         if (code == 504)
         {
             NetworkHandler.instance.ServerPopPanel.SetActive(true);
+            NumericKeyboard.CloseIfOpen();
             return;
         }
         ErrorPanel.gameObject.SetActive(true);
+        NumericKeyboard.CloseIfOpen();
         canvasGroup.DOFade(1, 0.2f).From(0);
         CancelInvoke(nameof(HideError));
         Invoke(nameof(HideError), 1.2f);
@@ -55,7 +57,7 @@ public class ErrorPopUpHandler : MonoBehaviour
                 case 503:
                     // SettingsPanelHandler.Instance.ShowServerMaintanence();
                     NetworkHandler.instance.ServerPopPanel.SetActive(true);
-
+                    NumericKeyboard.CloseIfOpen();
                     break;
                 default:
                     if (APIController.instance.authentication.operatorname.ToLower() != "demo")
